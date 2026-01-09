@@ -82,6 +82,25 @@ export default defineConfig((config) => {
         '**/tests/preview/**', // Exclude preview tests that require Playwright
       ],
     },
+
+    // Configuración clave para producción en Fly.io
+    preview: {
+      host: '0.0.0.0',  // ¡Obliga a escuchar en todas las interfaces (necesario para Fly)!
+      port: 5173,       // Fuerza el puerto exacto de tu fly.toml
+      allowedHosts: [
+        'saas-botegram.fly.dev',  // Tu dominio
+        '.fly.dev'                // Cualquier subdominio .fly.dev
+      ],
+      http2: false,  // Fuerza HTTP/1.1
+      // Opcional: allowedHosts: true  // Para testing rápido (menos seguro)
+    },
+
+    // Para desarrollo local
+    server: {
+      host: '0.0.0.0',
+      port: 5173,
+      allowedHosts: ['localhost', '.fly.dev'],
+    },
   };
 });
 

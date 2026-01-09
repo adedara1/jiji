@@ -1,0 +1,47 @@
+# fly.toml app configuration file generated for saas-botegram on 2026-01-09T08:36:50Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'saas-botegram'
+primary_region = 'cdg'
+
+[build]
+
+[http_service]
+  internal_port = 5173
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 2048
+
+[[services]]
+  internal_port = 5173
+  protocol = "tcp"
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[services.ports]]
+    port = 80
+    handlers = ["http"]
+[[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  # Health check para ruta raíz
+[[services.http_checks]]
+  grace_period = "60s"   # Da 1 min al boot (para que Vite arranque lento)
+  interval = "15s"
+  timeout = "15s"
+  method = "GET"
+  path = "/"             # Ruta raíz
+  protocol = "http"
+  http_version = "1.1"   # Fuerza HTTP/1.1 (para evitar HTTP/2 mismatch)
