@@ -14,16 +14,308 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      component_templates: {
+        Row: {
+          component_type: Database["public"]["Enums"]["component_type"]
+          content: Json | null
+          created_at: string
+          description: string | null
+          id: string
+          is_public: boolean | null
+          name: string
+          props: Json | null
+          styles: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          component_type: Database["public"]["Enums"]["component_type"]
+          content?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name: string
+          props?: Json | null
+          styles?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          component_type?: Database["public"]["Enums"]["component_type"]
+          content?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          props?: Json | null
+          styles?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      components: {
+        Row: {
+          component_type: Database["public"]["Enums"]["component_type"]
+          content: Json | null
+          created_at: string
+          id: string
+          is_visible: boolean | null
+          name: string | null
+          order_index: number
+          page_id: string
+          parent_id: string | null
+          props: Json | null
+          styles: Json | null
+          updated_at: string
+        }
+        Insert: {
+          component_type: Database["public"]["Enums"]["component_type"]
+          content?: Json | null
+          created_at?: string
+          id?: string
+          is_visible?: boolean | null
+          name?: string | null
+          order_index?: number
+          page_id: string
+          parent_id?: string | null
+          props?: Json | null
+          styles?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          component_type?: Database["public"]["Enums"]["component_type"]
+          content?: Json | null
+          created_at?: string
+          id?: string
+          is_visible?: boolean | null
+          name?: string | null
+          order_index?: number
+          page_id?: string
+          parent_id?: string | null
+          props?: Json | null
+          styles?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "components_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "components_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "components"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deployments: {
+        Row: {
+          created_at: string
+          deploy_url: string | null
+          id: string
+          project_id: string
+          status: string | null
+          version: string
+        }
+        Insert: {
+          created_at?: string
+          deploy_url?: string | null
+          id?: string
+          project_id: string
+          status?: string | null
+          version: string
+        }
+        Update: {
+          created_at?: string
+          deploy_url?: string | null
+          id?: string
+          project_id?: string
+          status?: string | null
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deployments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pages: {
+        Row: {
+          created_at: string
+          id: string
+          is_homepage: boolean | null
+          meta_description: string | null
+          meta_title: string | null
+          name: string
+          project_id: string
+          settings: Json | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_homepage?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          name?: string
+          project_id: string
+          settings?: Json | null
+          slug?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_homepage?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          name?: string
+          project_id?: string
+          settings?: Json | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pages_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          settings: Json | null
+          status: Database["public"]["Enums"]["project_status"]
+          thumbnail_url: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          settings?: Json | null
+          status?: Database["public"]["Enums"]["project_status"]
+          thumbnail_url?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          settings?: Json | null
+          status?: Database["public"]["Enums"]["project_status"]
+          thumbnail_url?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      owns_project: {
+        Args: { _project_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user" | "premium"
+      component_type:
+        | "section"
+        | "header"
+        | "footer"
+        | "hero"
+        | "text"
+        | "image"
+        | "button"
+        | "form"
+        | "card"
+        | "grid"
+        | "container"
+        | "navbar"
+        | "custom"
+      project_status: "draft" | "published" | "archived"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +442,24 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user", "premium"],
+      component_type: [
+        "section",
+        "header",
+        "footer",
+        "hero",
+        "text",
+        "image",
+        "button",
+        "form",
+        "card",
+        "grid",
+        "container",
+        "navbar",
+        "custom",
+      ],
+      project_status: ["draft", "published", "archived"],
+    },
   },
 } as const
