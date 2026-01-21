@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '../integrations/supabase/client';
@@ -11,7 +11,6 @@ import {
   Smartphone,
   Tablet,
   Monitor,
-  Plus,
   Trash2,
   Settings,
   Layers,
@@ -23,12 +22,15 @@ import {
   Navigation,
   FileText,
   Grid3X3,
-  ChevronRight,
-  ChevronDown,
   GripVertical,
   Loader2,
   Sparkles,
+  Download,
+  Rocket,
 } from 'lucide-react';
+import PreviewModal from '../components/builder/PreviewModal';
+import PageManager from '../components/builder/PageManager';
+import ExportModal from '../components/builder/ExportModal';
 
 interface Page {
   id: string;
@@ -65,6 +67,8 @@ const COMPONENT_LIBRARY = [
   { type: 'form', icon: FileText, label: 'Formulaire', category: 'Contenu' },
 ];
 
+type ComponentType = "button" | "card" | "container" | "custom" | "footer" | "form" | "grid" | "header" | "hero" | "image" | "navbar" | "section" | "text";
+
 export default function Builder() {
   const { projectId } = useParams<{ projectId: string }>();
   const [project, setProject] = useState<{ name: string; description: string | null } | null>(null);
@@ -77,7 +81,7 @@ export default function Builder() {
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [leftPanelTab, setLeftPanelTab] = useState<'components' | 'layers'>('components');
   const [showPreview, setShowPreview] = useState(false);
-  const [draggedComponent, setDraggedComponent] = useState<string | null>(null);
+  const [showExport, setShowExport] = useState(false);
 
   useEffect(() => {
     if (projectId) {
@@ -128,6 +132,7 @@ export default function Builder() {
 
       if (error) throw error;
       setComponents((data || []) as Component[]);
+      setSelectedComponent(null);
     } catch (error) {
       console.error('Error fetching components:', error);
     }
@@ -139,15 +144,15 @@ export default function Builder() {
     try {
       const newComponent = {
         page_id: currentPage.id,
-        component_type: type as any,
+        component_type: type as ComponentType,
         name: `${type}-${Date.now()}`,
         order_index: components.length,
-        props: getDefaultProps(type),
-        styles: getDefaultStyles(type),
-        content: getDefaultContent(type),
+        props: getDefaultProps(type) as Record<string, unknown>,
+        styles: getDefaultStyles(type) as Record<string, unknown>,
+        content: getDefaultContent(type) as Record<string, unknown>,
       };
 
-      const { data, error } = await supabase.from('components').insert(newComponent).select().single();
+      const { data, error } = await supabase.from('components').insert([newComponent as any]).select().single();
 
       if (error) throw error;
 
@@ -206,6 +211,11 @@ export default function Builder() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handlePageSelect = (page: Page) => {
+    setCurrentPage(page);
+    fetchComponents(page.id);
   };
 
   const getDefaultProps = (type: string): Record<string, unknown> => {
@@ -457,10 +467,18 @@ export default function Builder() {
             <Redo className="h-5 w-5" />
           </button>
           <button
-            onClick={() => setShowPreview(!showPreview)}
-            className={`p-2 rounded-lg transition-colors ${showPreview ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+            onClick={() => setShowPreview(true)}
+            className="p-2 hover:bg-muted rounded-lg transition-colors"
+            title="Prévisualiser"
           >
             <Eye className="h-5 w-5" />
+          </button>
+          <button
+            onClick={() => setShowExport(true)}
+            className="p-2 hover:bg-muted rounded-lg transition-colors"
+            title="Exporter"
+          >
+            <Download className="h-5 w-5" />
           </button>
           <button
             onClick={saveProject}
@@ -561,36 +579,13 @@ export default function Builder() {
           </div>
 
           {/* Pages Section */}
-          <div className="border-t border-border p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium">Pages</h3>
-              <button className="p-1 hover:bg-muted rounded transition-colors">
-                <Plus className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="space-y-1">
-              {pages.map((page) => (
-                <button
-                  key={page.id}
-                  onClick={() => {
-                    setCurrentPage(page);
-                    fetchComponents(page.id);
-                  }}
-                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-left transition-colors ${
-                    currentPage?.id === page.id
-                      ? 'bg-primary/10 text-primary'
-                      : 'hover:bg-muted'
-                  }`}
-                >
-                  <FileText className="h-4 w-4" />
-                  {page.name}
-                  {page.is_homepage && (
-                    <span className="ml-auto text-xs text-muted-foreground">Home</span>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
+          <PageManager
+            pages={pages}
+            currentPage={currentPage}
+            projectId={projectId || ''}
+            onPageSelect={handlePageSelect}
+            onPagesChange={setPages}
+          />
         </aside>
 
         {/* Canvas / Preview */}
@@ -684,6 +679,22 @@ export default function Builder() {
           </div>
         </aside>
       </div>
+
+      {/* Modals */}
+      <PreviewModal
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+        components={components}
+        projectName={project?.name || 'Projet'}
+      />
+
+      <ExportModal
+        isOpen={showExport}
+        onClose={() => setShowExport(false)}
+        projectId={projectId || ''}
+        projectName={project?.name || 'Projet'}
+        pages={pages}
+      />
     </div>
   );
 }
